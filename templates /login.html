@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minecraft Login</title>
+  <title>Minecraft Sign Up</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,7 +15,7 @@
       margin: 0;
       color: white;
     }
-    .login-container {
+    .signup-container {
       background-color: #4c3b2a;
       padding: 30px;
       border-radius: 12px;
@@ -85,31 +85,33 @@
   </style>
 </head>
 <body>
-  <span class="home-icon" onclick="window.location.href='index.html'">
-    🏠
+  <span class="home-icon">
+      <a href="{{ url_for('home') }}">
+        🏠
+      </a>
   </span>
 
-  <div class="login-container">
-    <h2>Login</h2>
-    <input type="text" id="username" placeholder="Username" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <button onclick="login()">Login</button>
+  <div class="signup-container">
+    <h2>Sign Up</h2>
+    <form method="POST" action="{{ url_for('sign_up') }}">
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <input type="text" name="name" placeholder="Full Name" required>
+      <button type="submit">Sign Up</button>
+    </form>
     <div class="footer">
-      <p>Don't have an account? <a href="#">Sign Up</a></p>
+      <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
     </div>
   </div>
-
-  <script>
-    function login() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      if (username && password) {
-        alert('Login successful! Redirecting to dashboard...');
-        window.location.href = 'dashboard.html';
-      } else {
-        alert('Please enter username and password.');
-      }
-    }
-  </script>
 </body>
 </html>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
