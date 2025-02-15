@@ -100,17 +100,13 @@
     </form>
     <div class="footer">
       <p>Don't have an account? <a href="{{ url_for('sign_up') }}">Sign Up</a></p>
+      {% if error_message %}
+      <div class="error">
+          <p>{{ error_message }}</p>
+      </div>
+      {% endif %}
     </div>
   </div>
 
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <ul>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
 </body>
 </html>
