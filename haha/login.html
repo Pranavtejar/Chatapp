@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #5a3d2b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: white;
+    }
+    .login-container {
+      background-color: #4c3b2a;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      width: 300px;
+      text-align: center;
+      border: 4px solid #3d2c1e;
+    }
+    h2 {
+      color: #6a9955;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 2px solid #3d2c1e;
+      border-radius: 6px;
+      background-color: #6a5d4b;
+      color: white;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    input::placeholder {
+      color: #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #6a9955;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #5a8c4a;
+    }
+    .footer {
+      margin-top: 20px;
+      color: #ccc;
+      font-size: 14px;
+    }
+    .footer a {
+      color: #6a9955;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    .home-icon {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      font-size: 24px;
+      color: #6a9955;
+      transition: color 0.3s ease;
+    }
+    .home-icon:hover {
+      color: #5a8c4a;
+    }
+  </style>
+</head>
+<body>
+  <span class="home-icon">
+      <a href="{{ url_for('home') }}">
+        🏠
+      </a>
+  </span>
+
+  <div class="login-container">
+    <h2>Login</h2>
+    <form method="POST" action="{{ url_for('login') }}">
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+    <div class="footer">
+      <p>Don't have an account? <a href="{{ url_for('sign_up') }}">Sign Up</a></p>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+</body>
+</html>

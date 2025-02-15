@@ -3,8 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder = "haha")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
+app.config["SECRET_KEY"] = 'your_secret_key'
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
@@ -25,8 +26,7 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    return redirect(url_for('login'))
-
+    return render_template("home.html")
 
 @app.route('/signup', methods=["GET", "POST"])
 def sign_up():
@@ -35,13 +35,17 @@ def sign_up():
         password = request.form["password"]
         name = request.form["name"]
         
+        if not username or not password or not name:
+            flash("Please fill in all fields.")
+            return redirect(url_for("sign_up"))
+        
         existing_user = User.query.filter_by(username=username).first()
 
         if existing_user:
             flash("User exists, please choose a different username.")
             return redirect(url_for("sign_up"))
         
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
         
         new_user = User(username=username, password=hashed_password, name=name)
         db.session.add(new_user)
@@ -50,7 +54,7 @@ def sign_up():
         flash('Account created successfully!')
         login_user(new_user)
         
-        return redirect(url_for("chat"))
+        return redirect(url_for("home"))
     return render_template("signup.html")
 
 @app.route('/login', methods=["GET", "POST"])
@@ -63,13 +67,14 @@ def login():
         
         if user and check_password_hash(user.password, password):
             login_user(user)
-            flash(success)
+            flash("Login successful!")
+            return redirect(url_for("home"))
         else:
             flash("Invalid username or password.")
     
     return render_template("login.html")
 
 
-
 if __name__ == '__main__':
     app.run(debug=True)
+

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minecraft Sign Up</title>
+  <title>Home</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,7 +15,7 @@
       margin: 0;
       color: white;
     }
-    .signup-container {
+    .home-container {
       background-color: #4c3b2a;
       padding: 30px;
       border-radius: 12px;
@@ -29,19 +29,10 @@
       font-size: 24px;
       margin-bottom: 20px;
     }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 2px solid #3d2c1e;
-      border-radius: 6px;
-      background-color: #6a5d4b;
-      color: white;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-    input::placeholder {
+    p {
       color: #ccc;
+      font-size: 16px;
+      margin-bottom: 20px;
     }
     button {
       width: 100%;
@@ -52,7 +43,6 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 16px;
-      margin-top: 10px;
       transition: background-color 0.3s ease;
     }
     button:hover {
@@ -91,27 +81,15 @@
       </a>
   </span>
 
-  <div class="signup-container">
-    <h2>Sign Up</h2>
-    <form method="POST" action="{{ url_for('sign_up') }}">
-      <input type="text" name="username" placeholder="Username" required>
-      <input type="password" name="password" placeholder="Password" required>
-      <input type="text" name="name" placeholder="Full Name" required>
-      <button type="submit">Sign Up</button>
-    </form>
+  <div class="home-container">
+    <h2>Welcome to Minecraft</h2>
+    <p>Choose an option to get started:</p>
+    <button onclick="window.location.href='{{ url_for('sign_up') }}'">Sign Up</button>
+    <button onclick="window.location.href='{{ url_for('login') }}'">Login</button>
     <div class="footer">
       <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+      <p>New user? <a href="{{ url_for('sign_up') }}">Sign up</a></p>
     </div>
   </div>
 </body>
 </html>
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul>
-      {% for message in messages %}
-        <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
