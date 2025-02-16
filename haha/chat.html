@@ -167,12 +167,16 @@
     const username = "{{ session['username'] }}";
     const friendsList = document.getElementById("friends-list");
     const chatArea = document.getElementById("chat-area");
+    const friendUsername = document.getElementById("friend-username").value;
+
+    let localPeerConnection;
+    let remotePeerConnection;
+    let localStream;
 
     socket.emit('join', { username: username });
 
     function sendMessage() {
       const message = document.getElementById("message-input").value;
-      const friendUsername = document.getElementById("friend-username").value;
       socket.emit('message', { target_user: friendUsername, message: message });
       chatArea.innerHTML += `<div class="message sent"><p><strong>You:</strong> ${message}</p></div>`;
       document.getElementById("message-input").value = '';
@@ -203,6 +207,62 @@
     function startChat(friend) {
       window.location.href = `/chat/${friend}`;
     }
+
+    
+    async function startWebRTC() {
+      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      localPeerConnection = new RTCPeerConnection();
+      localStream.getTracks().forEach(track => localPeerConnection.addTrack(track, localStream));
+
+      localPeerConnection.onicecandidate = ({ candidate }) => {
+        if (candidate) {
+          socket.emit('webrtc_ice_candidate', { target_user: friendUsername, candidate: candidate });
+        }
+      };
+
+      localPeerConnection.ontrack = ({ streams: [stream] }) => {
+        const remoteVideo = document.createElement('video');
+        remoteVideo.srcObject = stream;
+        remoteVideo.autoplay = true;
+        chatArea.appendChild(remoteVideo);
+      };
+
+      const offer = await localPeerConnection.createOffer();
+      await localPeerConnection.setLocalDescription(offer);
+      socket.emit('webrtc_offer', { target_user: friendUsername, offer: offer });
+    }
+
+    socket.on('webrtc_offer', async ({ offer }) => {
+      remotePeerConnection = new RTCPeerConnection();
+      remotePeerConnection.onicecandidate = ({ candidate }) => {
+        if (candidate) {
+          socket.emit('webrtc_ice_candidate', { target_user: friendUsername, candidate: candidate });
+        }
+      };
+
+      remotePeerConnection.ontrack = ({ streams: [stream] }) => {
+        const remoteVideo = document.createElement('video');
+        remoteVideo.srcObject = stream;
+        remoteVideo.autoplay = true;
+        chatArea.appendChild(remoteVideo);
+      };
+
+      await remotePeerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await remotePeerConnection.createAnswer();
+      await remotePeerConnection.setLocalDescription(answer);
+      socket.emit('webrtc_answer', { target_user: friendUsername, answer: answer });
+    });
+
+    socket.on('webrtc_answer', async ({ answer }) => {
+      await localPeerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    });
+
+    socket.on('webrtc_ice_candidate', async ({ candidate }) => {
+      const iceCandidate = new RTCIceCandidate(candidate);
+      await (localPeerConnection || remotePeerConnection).addIceCandidate(iceCandidate);
+    });
+
+    startWebRTC();
   </script>
 </body>
 </html>

@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, j
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 app = Flask(__name__, template_folder="haha")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
@@ -167,6 +167,24 @@ def handle_disconnect():
             del users_db[user]
             emit('user_list', list(users_db.keys()), broadcast=True)
             break
+
+@socketio.on('webrtc_offer')
+def handle_webrtc_offer(data):
+    target_user_sid = users_db.get(data['target_user'])
+    if target_user_sid:
+        emit('webrtc_offer', data, room=target_user_sid)
+
+@socketio.on('webrtc_answer')
+def handle_webrtc_answer(data):
+    target_user_sid = users_db.get(data['target_user'])
+    if target_user_sid:
+        emit('webrtc_answer', data, room=target_user_sid)
+
+@socketio.on('webrtc_ice_candidate')
+def handle_webrtc_ice_candidate(data):
+    target_user_sid = users_db.get(data['target_user'])
+    if target_user_sid:
+        emit('webrtc_ice_candidate', data, room=target_user_sid)
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
