@@ -1,3 +1,6 @@
-Flask
-flask-socketio
+flask
+flask_sqlalchemy
+flask_socketio
 eventlet
+flask_login
+werkzeug
